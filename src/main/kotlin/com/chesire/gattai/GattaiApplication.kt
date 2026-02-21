@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class GattaiApplication
 
 fun main(args: Array<String>) {
-	runApplication<GattaiApplication>(*args)
+    runApplication<GattaiApplication>(args)
 }

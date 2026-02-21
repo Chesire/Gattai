@@ -77,10 +77,10 @@ jobs:
         run: ./gradlew detekt --no-daemon
 
       - name: GitHub | Upload SARIF
-        if: always()
+        if: success() || failure()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: build/reports/detekt/report.sarif
+          sarif_file: build/reports/detekt/detekt.sarif
           wait-for-processing: true
 
   compile:
