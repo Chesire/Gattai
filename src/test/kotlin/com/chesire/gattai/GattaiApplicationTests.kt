@@ -7,5 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest
 class GattaiApplicationTests {
 
     @Test
-    fun contextLoads()
+    fun contextLoads() {
+        assert(true)
+    }
 }
