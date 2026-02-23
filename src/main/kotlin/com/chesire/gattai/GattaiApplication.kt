@@ -7,5 +7,6 @@ import org.springframework.boot.runApplication
 class GattaiApplication
 
 fun main(args: Array<String>) {
-	runApplication<GattaiApplication>(*args)
+    @Suppress("SpreadOperator")
+    runApplication<GattaiApplication>(*args)
 }
