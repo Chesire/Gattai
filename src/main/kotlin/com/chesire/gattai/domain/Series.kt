@@ -9,6 +9,6 @@ data class Series(
 )
 
 enum class SeriesType {
-    Anime,
-    Manga
+    ANIME,
+    MANGA
 }
