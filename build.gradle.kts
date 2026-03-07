@@ -3,9 +3,9 @@ import io.gitlab.arturbosch.detekt.Detekt
 plugins {
     kotlin("jvm") version "2.2.21"
     kotlin("plugin.spring") version "2.2.21"
-    id("org.springframework.boot") version "4.0.3"
-    id("io.spring.dependency-management") version "1.1.7"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("org.springframework.boot") version "4.0.3"
 }
 
 group = "com.chesire"
@@ -23,8 +23,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -33,6 +34,7 @@ dependencies {
 
 kotlin {
     compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
         freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
     }
 }
@@ -55,11 +57,11 @@ tasks.withType<Detekt>().configureEach {
 }
 
 dependencyManagement {
-  configurations.matching { it.name == "detekt" }.all {
-      resolutionStrategy.eachDependency {
-          if (requested.group == "org.jetbrains.kotlin") {
-              useVersion(io.gitlab.arturbosch.detekt.getSupportedKotlinVersion())
-          }
-      }
-  }
+    configurations.matching { it.name == "detekt" }.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion(io.gitlab.arturbosch.detekt.getSupportedKotlinVersion())
+            }
+        }
+    }
 }
