@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/search")
-class SearchController {
+class SearchController(private val aggregator: SearchAggregator) {
 
     @GetMapping
     fun findSeries(@RequestParam params: SearchParams) {
-        // talk to aggregator to find matching series
+        val series = aggregator.findSeries(params)
     }
 }

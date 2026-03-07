@@ -1,8 +1,12 @@
 package com.chesire.gattai.feature.search
 
-class SearchAggregator {
+import com.chesire.gattai.domain.Series
+import com.chesire.gattai.domain.search.SearchService
 
-    fun findSeries(params: SearchParams) {
-        // talk to each service and aggregate results
+class SearchAggregator(private val services: List<SearchService>) {
+
+    fun findSeries(params: SearchParams): List<Series> {
+        return services.flatMap { it.search(params) }
+        // do parsing on the results
     }
 }
