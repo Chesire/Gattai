@@ -3,14 +3,13 @@ package com.chesire.gattai.feature.search
 import com.chesire.gattai.domain.SeriesType
 
 data class SearchModel(
-    val id: Int,
-    val targetType: TargetType,
+    val ids: Ids,
     val title: String,
     val seriesType: SeriesType
 )
 
-enum class TargetType {
-    KITSU,
-    MAL,
-    ANILIST
-}
+data class Ids(
+    val kitsuId: String? = null,
+    val malId: String? = null,
+    val anilistId: String? = null
+)

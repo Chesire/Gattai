@@ -1,5 +1,6 @@
 package com.chesire.gattai.provider.mapping
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
@@ -7,9 +8,9 @@ import org.springframework.stereotype.Component
 @Component
 class SeriesIdMappingProvider {
 
-    private val _byKitsuId: Map<Int, SeriesIdMappingEntry>
-    private val _byMalId: Map<Int, SeriesIdMappingEntry>
-    private val _byAnilistId: Map<Int, SeriesIdMappingEntry>
+    private val _byKitsuId: Map<String, SeriesIdMappingEntry>
+    private val _byMalId: Map<String, SeriesIdMappingEntry>
+    private val _byAnilistId: Map<String, SeriesIdMappingEntry>
 
     private val _entries: List<SeriesIdMappingEntry>
 
@@ -18,7 +19,14 @@ class SeriesIdMappingProvider {
             .inputStream
             .use { inputStream ->
                 _entries = jacksonObjectMapper()
-                    .readValue(inputStream, Array<SeriesIdMappingEntry>::class.java)
+                    .readValue(inputStream, Array<SeriesIdMappingEntryDto>::class.java)
+                    .map {
+                        SeriesIdMappingEntry(
+                            it.kitsuId?.toString(),
+                            it.malId?.toString(),
+                            it.anilistId?.toString()
+                        )
+                    }
                     .toList()
             }
 
@@ -27,7 +35,7 @@ class SeriesIdMappingProvider {
         _byAnilistId = _entries.filter { it.anilistId != null }.associateBy { it.anilistId!! }
     }
 
-    fun findById(kitsuId: Int?, malId: Int?, anilistId: Int?): SeriesIdMappingEntry? {
+    fun findById(kitsuId: String?, malId: String?, anilistId: String?): SeriesIdMappingEntry? {
         return when {
             kitsuId != null -> findByKitsuId(kitsuId)
             malId != null -> findByMalId(malId)
@@ -36,7 +44,16 @@ class SeriesIdMappingProvider {
         }
     }
 
-    fun findByKitsuId(kitsuId: Int): SeriesIdMappingEntry? = _byKitsuId[kitsuId]
-    fun findByMalId(malId: Int): SeriesIdMappingEntry? = _byMalId[malId]
-    fun findByAnilistId(anilistId: Int): SeriesIdMappingEntry? = _byAnilistId[anilistId]
+    fun findByKitsuId(kitsuId: String): SeriesIdMappingEntry? = _byKitsuId[kitsuId]
+    fun findByMalId(malId: String): SeriesIdMappingEntry? = _byMalId[malId]
+    fun findByAnilistId(anilistId: String): SeriesIdMappingEntry? = _byAnilistId[anilistId]
 }
+
+private data class SeriesIdMappingEntryDto(
+    @JsonProperty("kitsu_id")
+    val kitsuId: Int? = null,
+    @JsonProperty("mal_id")
+    val malId: Int? = null,
+    @JsonProperty("anilist_id")
+    val anilistId: Int? = null
+)

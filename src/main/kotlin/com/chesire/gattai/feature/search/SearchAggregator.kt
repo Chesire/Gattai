@@ -23,16 +23,16 @@ class SearchAggregator(
                 }
                 buildSeries(mapping, seriesList)
             }
-        
+
         return result
     }
 
     private fun getMapping(model: SearchModel): SeriesIdMappingEntry? {
-        return when (model.targetType) {
-            TargetType.KITSU -> seriesIdMappingProvider.findById(model.id, null, null)
-            TargetType.MAL -> seriesIdMappingProvider.findById(null, model.id, null)
-            TargetType.ANILIST -> seriesIdMappingProvider.findById(null, null, model.id)
-        }
+        return seriesIdMappingProvider.findById(
+            kitsuId = model.ids.kitsuId,
+            malId = model.ids.malId,
+            anilistId = model.ids.anilistId
+        )
     }
 
     private fun buildSeries(mapping: SeriesIdMappingEntry, seriesList: List<SearchModel>): Series {
