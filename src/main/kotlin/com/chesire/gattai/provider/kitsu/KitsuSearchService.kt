@@ -28,11 +28,15 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
                     SearchModel(
                         ids = Ids(
                             kitsuId = item.id,
-                            malId = mappings.firstOrNull { it.attributes.externalSite == MAPPING_MAL }?.attributes?.externalId,
-                            anilistId = mappings.firstOrNull { it.attributes.externalSite == MAPPING_ANILIST }?.attributes?.externalId
+                            malId = mappings.firstOrNull {
+                                it.attributes.externalSite.startsWith(MAPPING_MAL)
+                            }?.attributes?.externalId,
+                            anilistId = mappings.firstOrNull {
+                                it.attributes.externalSite.startsWith(MAPPING_ANILIST)
+                            }?.attributes?.externalId
                         ),
                         title = item.attributes.canonicalTitle,
-                        seriesType = SeriesType.ANIME
+                        seriesType = params.seriesType
                     )
                 }
             } ?: emptyList() // TODO: Handle error better
@@ -40,7 +44,10 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
 
     private fun buildDestination(params: SearchParams): String {
         return buildString {
-            append(ANIME_DESTINATION)
+            when (params.seriesType) {
+                SeriesType.MANGA -> append(MANGA_DESTINATION)
+                else -> append(ANIME_DESTINATION)
+            }
             append("?")
             if (params.title.isNotBlank()) {
                 append("filter[text]=${params.title}")
@@ -48,17 +55,21 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
             }
             append(INCLUDE)
             append("&")
-            append(FIELDS)
+            when (params.seriesType) {
+                SeriesType.MANGA -> append(MANGA_FIELDS)
+                else -> append(ANIME_FIELDS)
+            }
         }
     }
 
     companion object {
         private const val ANIME_DESTINATION = "/anime"
+        private const val MANGA_DESTINATION = "/manga"
         private const val INCLUDE = "include=mappings"
-        private const val FIELDS = "fields[anime]=canonicalTitle,mappings"
+        private const val ANIME_FIELDS = "fields[anime]=canonicalTitle,mappings"
+        private const val MANGA_FIELDS = "fields[manga]=canonicalTitle,mappings"
 
-        // TODO: Handle for manga too
-        private const val MAPPING_MAL = "myanimelist/anime"
-        private const val MAPPING_ANILIST = "anilist/anime"
+        private const val MAPPING_MAL = "myanimelist/"
+        private const val MAPPING_ANILIST = "anilist/"
     }
 }

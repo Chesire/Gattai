@@ -28,6 +28,23 @@ class SearchAggregator(
     }
 
     private fun getMapping(model: SearchModel): SeriesIdMappingEntry? {
+        if (model.seriesType == SeriesType.MANGA) {
+            // We can only perform static mapping on anime
+            return null
+        }
+
+        if (!model.ids.kitsuId.isNullOrBlank() &&
+            !model.ids.malId.isNullOrBlank() &&
+            !model.ids.anilistId.isNullOrBlank()
+        ) {
+            // If we have all the IDs, we can skip the provider
+            return SeriesIdMappingEntry(
+                kitsuId = model.ids.kitsuId,
+                malId = model.ids.malId,
+                anilistId = model.ids.anilistId
+            )
+        }
+
         return seriesIdMappingProvider.findById(
             kitsuId = model.ids.kitsuId,
             malId = model.ids.malId,
@@ -41,7 +58,7 @@ class SearchAggregator(
             malId = mapping.malId,
             aniListId = mapping.anilistId,
             title = seriesList.firstOrNull { it.title.isNotBlank() }?.title ?: "",
-            seriesType = SeriesType.ANIME // TODO: Handle Manga as well
+            seriesType = seriesList.first().seriesType,
         )
     }
 }
