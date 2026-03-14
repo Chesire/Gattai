@@ -14,42 +14,48 @@ class SearchAggregator(
 ) {
 
     fun findSeries(params: SearchParams): List<Series> {
-        val result = services
-            .flatMap { it.search(params) }
-            .groupBy(::getMapping)
-            .mapNotNull { (mapping, seriesList) ->
-                if (mapping == null) {
-                    return@mapNotNull null
-                }
-                buildSeries(mapping, seriesList)
+        val allResults = services.flatMap { it.search(params) }
+
+        val idToIndex = mutableMapOf<String, Int>()
+        val accumulated = mutableListOf<Pair<SeriesIdMappingEntry, MutableList<SearchModel>>>()
+
+        for (result in allResults) {
+            val ids = result.ids
+            val existingIndex = ids.kitsuId?.let { idToIndex[it] }
+                ?: ids.malId?.let { idToIndex[it] }
+                ?: ids.anilistId?.let { idToIndex[it] }
+
+            if (existingIndex != null) {
+                val (existingEntry, models) = accumulated[existingIndex]
+                val mergedEntry = existingEntry.copy(
+                    kitsuId = existingEntry.kitsuId ?: ids.kitsuId,
+                    malId = existingEntry.malId ?: ids.malId,
+                    anilistId = existingEntry.anilistId ?: ids.anilistId
+                )
+                accumulated[existingIndex] = mergedEntry to models.also { it.add(result) }
+                ids.kitsuId?.let { idToIndex.putIfAbsent(it, existingIndex) }
+                ids.malId?.let { idToIndex.putIfAbsent(it, existingIndex) }
+                ids.anilistId?.let { idToIndex.putIfAbsent(it, existingIndex) }
+            } else {
+                val newIndex = accumulated.size
+                accumulated.add(SeriesIdMappingEntry(ids.kitsuId, ids.malId, ids.anilistId) to mutableListOf(result))
+                ids.kitsuId?.let { idToIndex[it] = newIndex }
+                ids.malId?.let { idToIndex[it] = newIndex }
+                ids.anilistId?.let { idToIndex[it] = newIndex }
             }
-
-        return result
-    }
-
-    private fun getMapping(model: SearchModel): SeriesIdMappingEntry? {
-        if (!model.ids.kitsuId.isNullOrBlank() &&
-            !model.ids.malId.isNullOrBlank() &&
-            !model.ids.anilistId.isNullOrBlank()
-        ) {
-            // We have all ids, we can skip the provider
-            return SeriesIdMappingEntry(
-                kitsuId = model.ids.kitsuId,
-                malId = model.ids.malId,
-                anilistId = model.ids.anilistId
-            )
         }
 
-        if (model.seriesType != SeriesType.ANIME) {
-            // We can only perform static mapping on anime
-            return null
+        return accumulated.map { (entry, models) ->
+            val resolvedEntry = if (
+                models.first().seriesType == SeriesType.ANIME &&
+                (entry.kitsuId == null || entry.malId == null || entry.anilistId == null)
+            ) {
+                seriesIdMappingProvider.findById(entry.kitsuId, entry.malId, entry.anilistId) ?: entry
+            } else {
+                entry
+            }
+            buildSeries(resolvedEntry, models)
         }
-
-        return seriesIdMappingProvider.findById(
-            kitsuId = model.ids.kitsuId,
-            malId = model.ids.malId,
-            anilistId = model.ids.anilistId
-        )
     }
 
     private fun buildSeries(mapping: SeriesIdMappingEntry, seriesList: List<SearchModel>): Series {
