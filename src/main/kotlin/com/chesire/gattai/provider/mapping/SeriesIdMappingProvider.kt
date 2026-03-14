@@ -27,6 +27,15 @@ class SeriesIdMappingProvider {
         _byAnilistId = _entries.filter { it.anilistId != null }.associateBy { it.anilistId!! }
     }
 
+    fun findById(kitsuId: Int?, malId: Int?, anilistId: Int?): SeriesIdMappingEntry? {
+        return when {
+            kitsuId != null -> findByKitsuId(kitsuId)
+            malId != null -> findByMalId(malId)
+            anilistId != null -> findByAnilistId(anilistId)
+            else -> null
+        }
+    }
+
     fun findByKitsuId(kitsuId: Int): SeriesIdMappingEntry? = _byKitsuId[kitsuId]
     fun findByMalId(malId: Int): SeriesIdMappingEntry? = _byMalId[malId]
     fun findByAnilistId(anilistId: Int): SeriesIdMappingEntry? = _byAnilistId[anilistId]
