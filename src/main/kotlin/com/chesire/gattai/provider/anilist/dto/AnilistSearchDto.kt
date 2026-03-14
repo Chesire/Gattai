@@ -21,7 +21,9 @@ data class AnilistMediaDto(
     @JsonProperty("id")
     val id: Int,
     @JsonProperty("title")
-    val title: AnilistTitleDto
+    val title: AnilistTitleDto,
+    @JsonProperty("idMal")
+    val idMal: Int?
 )
 
 data class AnilistTitleDto(

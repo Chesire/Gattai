@@ -22,6 +22,7 @@ class AnilistSearchService(private val client: AnilistClient) : SearchService {
                 dto.data.page.media.map { item ->
                     SearchModel(
                         ids = Ids(
+                            malId = item.idMal?.toString(),
                             anilistId = item.id.toString()
                         ),
                         title = item.title.romaji,
@@ -40,6 +41,7 @@ class AnilistSearchService(private val client: AnilistClient) : SearchService {
                     media(search: "${params.title}", type: ${params.seriesType}) {
                       id
                       title { romaji }
+                      idMal
                     }
                   }
                 }
