@@ -48,7 +48,7 @@ class MalSearchService(private val client: MalClient) : SearchService {
     companion object {
         private const val ANIME_DESTINATION = "/anime"
         private const val MANGA_DESTINATION = "/manga"
-        private const val LIMIT = "limit=10"
+        private const val LIMIT = "limit=20"
         private const val FIELDS = "fields=id,title"
     }
 }

@@ -54,6 +54,8 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
             append("&")
             append(INCLUDE)
             append("&")
+            append(LIMIT)
+            append("&")
             when (params.seriesType) {
                 SeriesType.MANGA -> append(MANGA_FIELDS)
                 else -> append(ANIME_FIELDS)
@@ -67,6 +69,7 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
         private const val INCLUDE = "include=mappings"
         private const val ANIME_FIELDS = "fields[anime]=canonicalTitle,mappings"
         private const val MANGA_FIELDS = "fields[manga]=canonicalTitle,mappings"
+        private const val LIMIT = "page[limit]=20"
 
         private const val MAPPING_MAL = "myanimelist/"
         private const val MAPPING_ANILIST = "anilist/"
