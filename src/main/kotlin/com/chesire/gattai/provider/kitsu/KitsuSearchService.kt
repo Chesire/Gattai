@@ -49,10 +49,8 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
                 else -> append(ANIME_DESTINATION)
             }
             append("?")
-            if (params.title.isNotBlank()) {
-                append("filter[text]=${params.title}")
-                append("&")
-            }
+            append("filter[text]=${params.title}")
+            append("&")
             append(INCLUDE)
             append("&")
             when (params.seriesType) {

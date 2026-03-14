@@ -10,7 +10,7 @@ import org.springframework.web.client.RestClient
 class KitsuClient {
 
     @PublishedApi
-    internal val kitsuRestClient = RestClient.builder()
+    internal val restClient = RestClient.builder()
         .baseUrl(BASE_URL)
         .defaultHeaders { headers ->
             headers.accept = listOf(MEDIA_TYPE)
@@ -20,7 +20,7 @@ class KitsuClient {
 
     final inline fun <reified T : Any> executeGet(destination: String): ResponseEntity<T> {
         return try {
-            kitsuRestClient
+            restClient
                 .get()
                 .uri(destination)
                 .retrieve()
