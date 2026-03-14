@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class AnilistSearchService(private val anilistClient: AnilistClient) : SearchService {
     override fun search(params: SearchParams): List<Series> {
-        TODO("Not yet implemented")
+        // call client
+        return emptyList()
     }
 }

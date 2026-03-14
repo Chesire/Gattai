@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class MalSearchService(private val malClient: MalClient) : SearchService {
     override fun search(params: SearchParams): List<Series> {
-        TODO("Not yet implemented")
+        // call client
+        return emptyList()
     }
 }
