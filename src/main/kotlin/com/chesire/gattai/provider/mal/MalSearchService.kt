@@ -2,8 +2,10 @@ package com.chesire.gattai.provider.mal
 
 import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.search.SearchService
+import com.chesire.gattai.feature.search.Ids
 import com.chesire.gattai.feature.search.SearchModel
 import com.chesire.gattai.feature.search.SearchParams
+import com.chesire.gattai.provider.mal.dto.MalSearchDto
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,14 +16,18 @@ class MalSearchService(private val client: MalClient) : SearchService {
             return emptyList()
         }
 
-        val hold = client.executeGet<String>(buildDestination(params))
+        return client.executeGet<MalSearchDto>(buildDestination(params))
             .body
             ?.let { dto ->
-                dto
+                dto.data.map { item ->
+                    SearchModel(
+                        ids = Ids(malId = item.node.id.toString()),
+                        title = item.node.title,
+                        seriesType = params.seriesType
+                    )
+                }
             }
-
-
-        return emptyList()
+            ?: emptyList()
     }
 
     private fun buildDestination(params: SearchParams): String {

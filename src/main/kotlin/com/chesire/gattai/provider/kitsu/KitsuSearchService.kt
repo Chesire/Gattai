@@ -39,7 +39,8 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
                         seriesType = params.seriesType
                     )
                 }
-            } ?: emptyList() // TODO: Handle error better
+            }
+            ?: emptyList() // TODO: Handle error better
     }
 
     private fun buildDestination(params: SearchParams): String {
