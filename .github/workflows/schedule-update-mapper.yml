@@ -1,0 +1,51 @@
+name: Update mapper
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Git | Checkout
+        uses: actions/checkout@v4
+
+      - name: Curl | Download file
+        run: |
+          mkdir ${{ runner.temp }}/json
+          curl https://raw.githubusercontent.com/Fribb/anime-lists/refs/heads/master/anime-list-mini.json -o ${{ runner.temp }}/json/anime-list-mini.json
+
+      - name: GitHub | Edit mapper file
+        uses: actions/github-script@v7
+        env:
+          INPUT_FILE: ${{ runner.temp }}/json/anime-list-mini.json
+          OUTPUT_FILE: src/main/resources/mapping/anime-list-mini.json
+        with:
+          script: |
+            const { INPUT_FILE, OUTPUT_FILE } = process.env
+            const fs = require('fs')
+            let input = require(INPUT_FILE)
+            let stringified = JSON.stringify(input, ["mal_id", "kitsu_id", "anilist_id"]) 
+            fs.writeFileSync(OUTPUT_FILE, stringified)
+
+      - name: Pull Request | Create
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.CHESIRE_BOT_TOKEN }}
+          branch: chore/update-mapper-file
+          commit-message: Updating mapper file to latest
+          title: "chore: update mapper file"
+          body: |
+            Updating the mapper file to the latest.
+            This pull request has been generated automatically.
+          labels: review
+          reviewers: chesire
+          draft: false
+          delete-branch: true
