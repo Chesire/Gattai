@@ -13,6 +13,7 @@ class SearchAggregator(
     private val seriesIdMappingProvider: SeriesIdMappingProvider
 ) {
 
+    @Suppress("CyclomaticComplexMethod")
     fun findSeries(params: SearchParams): List<Series> {
         val allResults = services.flatMap { it.search(params) }
 
@@ -46,10 +47,9 @@ class SearchAggregator(
         }
 
         return accumulated.map { (entry, models) ->
-            val resolvedEntry = if (
-                models.first().seriesType == SeriesType.ANIME &&
-                (entry.kitsuId == null || entry.malId == null || entry.anilistId == null)
-            ) {
+            val isAnime = models.first().seriesType == SeriesType.ANIME
+            val anyMissing = entry.kitsuId == null || entry.malId == null || entry.anilistId == null
+            val resolvedEntry = if (isAnime && anyMissing) {
                 seriesIdMappingProvider.findById(entry.kitsuId, entry.malId, entry.anilistId) ?: entry
             } else {
                 entry
