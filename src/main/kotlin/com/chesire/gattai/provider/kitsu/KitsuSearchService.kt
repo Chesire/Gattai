@@ -21,11 +21,11 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
         return client.executeGet<KitsuSearchDto>(buildDestination(params))
             .body
             ?.let { dto ->
-                val includedMap = dto.included?.associateBy { it.id } ?: emptyMap()
+                val includedMap = dto.included?.associateBy { it.id }.orEmpty()
                 dto.data.map { item ->
                     val mappings = item.relationships?.mappings?.data
                         ?.mapNotNull { includedMap[it.id] }
-                        ?: emptyList()
+                        .orEmpty()
 
                     buildSearchModel(
                         seriesType = params.seriesType,
@@ -34,7 +34,7 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
                     )
                 }
             }
-            ?: emptyList() // TODO: Handle error better
+            .orEmpty() // TODO: Handle better
     }
 
     private fun buildDestination(params: SearchParams): String {

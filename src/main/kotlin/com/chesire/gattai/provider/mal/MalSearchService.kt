@@ -27,7 +27,7 @@ class MalSearchService(private val client: MalClient) : SearchService {
                     )
                 }
             }
-            ?: emptyList() // TODO: Handle better
+            .orEmpty() // TODO: Handle better
     }
 
     private fun buildDestination(params: SearchParams): String {

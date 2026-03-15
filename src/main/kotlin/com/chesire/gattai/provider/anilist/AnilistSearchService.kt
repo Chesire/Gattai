@@ -30,7 +30,7 @@ class AnilistSearchService(private val client: AnilistClient) : SearchService {
                     )
                 }
             }
-            ?: emptyList() // TODO: Handle better
+            .orEmpty() // TODO: Handle better
     }
 
     private fun buildQuery(params: SearchParams): AnilistQueryDto {
@@ -45,7 +45,7 @@ class AnilistSearchService(private val client: AnilistClient) : SearchService {
                     }
                   }
                 }
-              """.trimIndent()
+            """.trimIndent()
         )
     }
 }
