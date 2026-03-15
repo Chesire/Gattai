@@ -5,7 +5,9 @@ import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.feature.search.SearchModel
 import com.chesire.gattai.feature.search.SearchParams
+import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDataDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDto
+import com.chesire.gattai.provider.kitsu.dto.KitsuSearchIncludedDto
 import org.springframework.stereotype.Component
 
 @Component
@@ -25,18 +27,10 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
                         ?.mapNotNull { includedMap[it.id] }
                         ?: emptyList()
 
-                    SearchModel(
-                        ids = Ids(
-                            kitsuId = item.id,
-                            malId = mappings.firstOrNull {
-                                it.attributes.externalSite.startsWith(MAPPING_MAL)
-                            }?.attributes?.externalId,
-                            anilistId = mappings.firstOrNull {
-                                it.attributes.externalSite.startsWith(MAPPING_ANILIST)
-                            }?.attributes?.externalId
-                        ),
-                        title = item.attributes.canonicalTitle,
-                        seriesType = params.seriesType
+                    buildSearchModel(
+                        seriesType = params.seriesType,
+                        data = item,
+                        mappings = mappings
                     )
                 }
             }
@@ -61,6 +55,26 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
                 else -> append(ANIME_FIELDS)
             }
         }
+    }
+
+    private fun buildSearchModel(
+        seriesType: SeriesType,
+        data: KitsuSearchDataDto,
+        mappings: List<KitsuSearchIncludedDto>
+    ): SearchModel {
+        return SearchModel(
+            ids = Ids(
+                kitsuId = data.id,
+                malId = mappings.firstOrNull {
+                    it.attributes.externalSite.startsWith(MAPPING_MAL)
+                }?.attributes?.externalId,
+                anilistId = mappings.firstOrNull {
+                    it.attributes.externalSite.startsWith(MAPPING_ANILIST)
+                }?.attributes?.externalId
+            ),
+            title = data.attributes.canonicalTitle,
+            seriesType = seriesType
+        )
     }
 
     companion object {
