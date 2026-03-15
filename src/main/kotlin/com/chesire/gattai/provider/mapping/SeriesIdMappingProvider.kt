@@ -30,9 +30,9 @@ class SeriesIdMappingProvider {
                     .toList()
             }
 
-        _byKitsuId = _entries.filter { it.kitsuId != null }.associateBy { it.kitsuId!! }
-        _byMalId = _entries.filter { it.malId != null }.associateBy { it.malId!! }
-        _byAnilistId = _entries.filter { it.anilistId != null }.associateBy { it.anilistId!! }
+        _byKitsuId = _entries.mapNotNull { entry -> entry.kitsuId?.let { key -> key to entry } }.toMap()
+        _byMalId = _entries.mapNotNull { entry -> entry.malId?.let { key -> key to entry } }.toMap()
+        _byAnilistId = _entries.mapNotNull { entry -> entry.anilistId?.let { key -> key to entry } }.toMap()
     }
 
     fun findById(kitsuId: String?, malId: String?, anilistId: String?): SeriesIdMappingEntry? {
