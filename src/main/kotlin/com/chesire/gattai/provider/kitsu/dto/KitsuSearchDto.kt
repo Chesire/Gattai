@@ -12,8 +12,6 @@ data class KitsuSearchDto(
 data class KitsuSearchDataDto(
     @JsonProperty("id")
     val id: String,
-    @JsonProperty("type")
-    val type: String, // TODO: Use enum
     @JsonProperty("attributes")
     val attributes: KitsuSearchDataAttributesDto,
     @JsonProperty("relationships")
