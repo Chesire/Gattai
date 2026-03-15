@@ -9,6 +9,7 @@ import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDataDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchIncludedDto
 import org.springframework.stereotype.Component
+import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class KitsuSearchService(private val client: KitsuClient) : SearchService {
@@ -38,23 +39,21 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
     }
 
     private fun buildDestination(params: SearchParams): String {
-        return buildString {
-            when (params.seriesType) {
-                SeriesType.MANGA -> append(MANGA_DESTINATION)
-                else -> append(ANIME_DESTINATION)
-            }
-            append("?")
-            append("filter[text]=${params.title}")
-            append("&")
-            append(INCLUDE)
-            append("&")
-            append(LIMIT)
-            append("&")
-            when (params.seriesType) {
-                SeriesType.MANGA -> append(MANGA_FIELDS)
-                else -> append(ANIME_FIELDS)
-            }
+        val basePath = when (params.seriesType) {
+            SeriesType.ANIME -> ANIME_DESTINATION
+            SeriesType.MANGA -> MANGA_DESTINATION
         }
+        val (fieldsKey, fieldsValue) = when (params.seriesType) {
+            SeriesType.ANIME -> ANIME_FIELDS_KEY to ANIME_FIELDS_VALUE
+            SeriesType.MANGA -> MANGA_FIELDS_KEY to MANGA_FIELDS_VALUE
+        }
+        return UriComponentsBuilder.fromPath(basePath)
+            .queryParam(QUERY_KEY, params.title)
+            .queryParam(INCLUDE_KEY, INCLUDE_VALUE)
+            .queryParam(LIMIT_KEY, LIMIT_VALUE)
+            .queryParam(fieldsKey, fieldsValue)
+            .build()
+            .toUriString()
     }
 
     private fun buildSearchModel(
@@ -80,10 +79,15 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
     companion object {
         private const val ANIME_DESTINATION = "/anime"
         private const val MANGA_DESTINATION = "/manga"
-        private const val INCLUDE = "include=mappings"
-        private const val ANIME_FIELDS = "fields[anime]=canonicalTitle,mappings"
-        private const val MANGA_FIELDS = "fields[manga]=canonicalTitle,mappings"
-        private const val LIMIT = "page[limit]=20"
+        private const val QUERY_KEY = "filter[text]"
+        private const val INCLUDE_KEY = "include"
+        private const val INCLUDE_VALUE = "mappings"
+        private const val LIMIT_KEY = "page[limit]"
+        private const val LIMIT_VALUE = 20
+        private const val ANIME_FIELDS_KEY = "fields[anime]"
+        private const val ANIME_FIELDS_VALUE = "canonicalTitle,mappings"
+        private const val MANGA_FIELDS_KEY = "fields[manga]"
+        private const val MANGA_FIELDS_VALUE = "canonicalTitle,mappings"
 
         private const val MAPPING_MAL = "myanimelist/"
         private const val MAPPING_ANILIST = "anilist/"
