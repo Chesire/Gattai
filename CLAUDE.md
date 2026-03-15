@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Gattai** is a backend API service designed to act as a unified interface for updating library tracking information across multiple platforms simultaneously. For example, users can update their progress on MyAnimeList, AniList, and Kitsu all at once through a single API.
+**Gattai** is a backend API service acting as a unified interface for querying and updating library tracking information across multiple platforms simultaneously (MyAnimeList, AniList, Kitsu).
 
-The project is built with **Kotlin and Spring Boot 4.0.3** on **Java 21**, using **Gradle 9.3.1** for builds.
+Built with **Kotlin and Spring Boot 4.0.3** on **Java 21**, using **Gradle 9.3.1**.
 
 **Repository**: https://github.com/Chesire/Gattai
 **License**: Apache 2.0
@@ -17,75 +17,76 @@ The project is built with **Kotlin and Spring Boot 4.0.3** on **Java 21**, using
 
 ## Learning Project Guidelines
 
-This project is being used as a **learning vehicle** to understand backend architecture, Spring Boot API development, and related concepts. Interactions should reflect this educational focus.
+This project is a **learning vehicle** for backend architecture and Spring Boot. Interactions should reflect this educational focus.
 
 ### Code Changes - NO AUTOMATIC MODIFICATIONS
 - **NEVER** automatically make code changes without explicit user consent
 - Always discuss proposed changes, explain the approach, and wait for approval before implementing
-- Provide explanations of WHY certain approaches are recommended
 
 ### Guidance Style - Hints Over Solutions
 - Provide hints, ideas, and vague references to relevant classes/APIs instead of exact implementations
 - Point toward appropriate Spring Boot annotations, patterns, or interfaces to explore
-- Suggest architectural approaches rather than copy-paste code
-- **Exception**: Only provide exact solutions when explicitly asked to do so
-- This approach maximizes learning and understanding
+- **Exception**: Only provide exact solutions when explicitly asked
 
 ---
 
 ## Common Commands
 
-All commands use the Gradle wrapper (`./gradlew`), so no separate Gradle installation is needed.
+All commands use the Gradle wrapper (`./gradlew`).
 
-### Build
 ```bash
 ./gradlew build           # Full build (compile, test, package)
 ./gradlew clean build     # Clean build from scratch
-./gradlew assemble        # Compile and package without running tests
-```
-
-### Run
-```bash
 ./gradlew bootRun         # Run the application locally
-```
-
-### Testing
-```bash
-./gradlew test                                # Run all tests
-./gradlew test --tests GattaiApplicationTests # Run specific test class
-./gradlew test -x                             # Build without running tests
-```
-
-### Code Quality & Output
-```bash
-./gradlew --info build    # Verbose build output
-./gradlew --debug build   # Debug-level output
+./gradlew test            # Run all tests
 ./gradlew tasks           # List all available Gradle tasks
+./gradlew --stop          # Stop Gradle daemon
 ```
 
-### Clean & Reset
-```bash
-./gradlew clean           # Remove build artifacts
-./gradlew --stop          # Stop Gradle daemon (useful if build hangs)
+**Environment variable required to run:**
+```
+MAL_CLIENT_ID=<your-mal-client-id>
 ```
 
 ---
 
 ## Architecture Overview
 
-### Current Structure
+### Package Structure
 
-The project is a **single-module Spring Boot application** in its bootstrap phase with minimal implementation:
+```
+com.chesire.gattai/
+├── domain/                    # Core entities and service interfaces
+│   ├── Ids.kt                 # Unified ID holder (kitsuId, malId, anilistId)
+│   ├── Series.kt              # Output domain model + SeriesType enum
+│   └── search/
+│       └── SearchService.kt   # Interface implemented by all provider search services
+├── feature/search/            # Search feature (controller + orchestration)
+│   ├── SearchController.kt    # GET /api/v1/search endpoint
+│   ├── SearchAggregator.kt    # Merges + deduplicates results across all providers
+│   ├── SearchModel.kt         # Internal search result model
+│   └── SearchParams.kt        # Request params (title, seriesType)
+└── provider/                  # External API integrations
+    ├── mapping/
+    │   ├── SeriesIdMappingProvider.kt  # Loads anime-list-mini.json; resolves missing IDs
+    │   └── SeriesIdMappingEntry.kt
+    ├── anilist/               # GraphQL API (returns anilistId + malId)
+    ├── kitsu/                 # REST JSONAPI (returns kitsuId; may include mal/anilist via mappings)
+    └── mal/                   # REST API, requires MAL_CLIENT_ID (returns malId only)
+```
 
-- **Main Entry Point**: `src/main/kotlin/com/chesire/gattai/GattaiApplication.kt`
-  - Standard Spring Boot `@SpringBootApplication` entry point
-  - Uses `runApplication<GattaiApplication>()` to start the server
+### Key Architectural Patterns
 
-- **Configuration**: `src/main/resources/application.properties`
-  - Currently only sets `spring.application.name=gattai`
+- **Strategy**: `SearchService` interface with three provider implementations
+- **Aggregation**: `SearchAggregator` fans out to all providers, then deduplicates by shared IDs
+- **ID enrichment**: For anime with incomplete IDs, `SeriesIdMappingProvider` fills gaps using `anime-list-mini.json` (1.2MB pre-built cross-platform mapping database)
+- Manga results skip the mapping provider lookup
 
-- **Tests**: `src/test/kotlin/com/chesire/gattai/GattaiApplicationTests.kt`
-  - Basic `@SpringBootTest` that verifies Spring context loads
+### API Endpoint
+
+`GET /api/v1/search?title=<title>&seriesType=ANIME|MANGA`
+
+Returns `List<Series>` with unified IDs and deduplicated titles across all platforms.
 
 ### Technology Stack
 
@@ -95,35 +96,22 @@ The project is a **single-module Spring Boot application** in its bootstrap phas
 | Kotlin | 2.2.21 | Language |
 | Spring Boot | 4.0.3 | Framework |
 | Gradle | 9.3.1 | Build tool |
-| JUnit 5 | Latest | Testing framework |
+| JUnit 5 | via Spring Boot | Testing |
+| MockK | 1.14.9 | Kotlin mocking in tests |
+| Detekt | 1.23.8 | Static analysis / code quality |
 
-### Compiler Configuration
+### Configuration
 
-- **Strict JSR-305**: `-Xjsr305=strict` enables strict null-safety checking
-- **Annotation Targets**: `-Xannotation-default-target=param-property` sets default annotation targets
-- These are configured in `build.gradle.kts` under the `kotlin` block
-
-### Build Artifacts
-
-After building, two JARs are created:
-- `build/libs/gattai-0.0.1-SNAPSHOT.jar` - Executable Spring Boot JAR (includes embedded server)
-- `build/libs/gattai-0.0.1-SNAPSHOT-plain.jar` - Plain library JAR
+- `src/main/resources/application.properties` — minimal config; `mal.client-id` is injected from env var `MAL_CLIENT_ID`
+- `src/main/resources/mapping/anime-list-mini.json` — cross-platform anime ID mapping database, loaded at startup
 
 ---
 
 ## Development Notes
 
-### Project Stage
+### Adding Dependencies
 
-This project is in a **bootstrap/foundation phase**. The core infrastructure is set up, but no business logic has been implemented yet. As features are added:
-
-- Create feature-specific packages under `com.chesire.gattai.*`
-- Add controllers, services, and repositories following Spring Boot conventions
-- Add comprehensive test coverage alongside implementation
-
-### Add Dependencies
-
-Edit `build.gradle.kts` in the `dependencies` block:
+Edit the `dependencies` block in `build.gradle.kts`:
 
 ```kotlin
 dependencies {
@@ -132,45 +120,14 @@ dependencies {
 }
 ```
 
-Then run `./gradlew build` to fetch and integrate.
-
 ### Key Files
 
-- **build.gradle.kts** - Gradle build configuration
-- **settings.gradle.kts** - Root project settings
-- **gradlew / gradlew.bat** - Build scripts (don't edit, auto-generated)
-- **gradle/** - Gradle wrapper files (don't edit, auto-generated)
+- **build.gradle.kts** — Gradle build config (dependencies, Detekt, Kotlin compiler options)
+- **settings.gradle.kts** — Root project settings
+- **src/main/resources/mapping/anime-list-mini.json** — Do not regenerate casually; large static resource
 
----
+### Compiler Configuration
 
-## Troubleshooting
-
-### Build Fails with Toolchain Error
-
-If you see "Cannot find a Java installation," ensure:
-1. Java 21 JDK (not JRE) is installed:
-   ```bash
-   java -version  # Should show "java 21"
-   javac -version # Should show "javac 21" (proves it's full JDK)
-   ```
-2. `JAVA_HOME` is set correctly (see Environment Setup above)
-3. Gradle daemon is stopped and restarted:
-   ```bash
-   ./gradlew --stop
-   ./gradlew build
-   ```
-
-### Tests Pass But Build Fails
-
-Run with debug output to diagnose:
-```bash
-./gradlew build --debug
-```
-
----
-
-## Additional Resources
-
-- **Spring Boot Documentation**: https://spring.io/guides/gs/spring-boot/
-- **Kotlin on Spring Boot**: https://spring.io/guides/tutorials/spring-boot-kotlin/
-- **Gradle Documentation**: https://docs.gradle.org
+- `-Xjsr305=strict` — strict null-safety checking
+- `-Xannotation-default-target=param-property` — default annotation targets
+- JVM target: 21
