@@ -1,5 +1,6 @@
 package com.chesire.gattai.feature.search
 
+import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.provider.mapping.SeriesIdMappingEntry
@@ -8,10 +9,10 @@ import io.mockk.Called
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class SearchAggregatorTests {
 
@@ -133,7 +134,7 @@ class SearchAggregatorTests {
             model(kitsuId = "kitsu-1", title = "anime1", type = SeriesType.ANIME)
         )
         every { seriesIdMappingProvider.findById("kitsu-1", null, null) } returns
-            SeriesIdMappingEntry(kitsuId = "kitsu-1", malId = "mal-1", anilistId = "anilist-1")
+                SeriesIdMappingEntry(kitsuId = "kitsu-1", malId = "mal-1", anilistId = "anilist-1")
 
         val result = aggregator.findSeries(params())
 
@@ -195,7 +196,7 @@ class SearchAggregatorTests {
             model(kitsuId = "kitsu-2", malId = "mal-2", title = "anime2", type = SeriesType.ANIME)
         )
         every { seriesIdMappingProvider.findById("kitsu-2", "mal-2", null) } returns
-            SeriesIdMappingEntry(kitsuId = "kitsu-2", malId = "mal-2", anilistId = "anilist-2")
+                SeriesIdMappingEntry(kitsuId = "kitsu-2", malId = "mal-2", anilistId = "anilist-2")
 
         val result = aggregator.findSeries(params())
 
@@ -227,7 +228,13 @@ class SearchAggregatorTests {
     @Test
     fun `allIds manga provider not called returns all ids`() {
         every { searchService.search(any()) } returns listOf(
-            model(kitsuId = "kitsu-3", malId = "mal-3", anilistId = "anilist-3", title = "manga3", type = SeriesType.MANGA)
+            model(
+                kitsuId = "kitsu-3",
+                malId = "mal-3",
+                anilistId = "anilist-3",
+                title = "manga3",
+                type = SeriesType.MANGA
+            )
         )
 
         val result = aggregator.findSeries(params())
@@ -242,7 +249,13 @@ class SearchAggregatorTests {
     @Test
     fun `allIds anime provider not called returns all ids`() {
         every { searchService.search(any()) } returns listOf(
-            model(kitsuId = "kitsu-3", malId = "mal-3", anilistId = "anilist-3", title = "anime3", type = SeriesType.ANIME)
+            model(
+                kitsuId = "kitsu-3",
+                malId = "mal-3",
+                anilistId = "anilist-3",
+                title = "anime3",
+                type = SeriesType.ANIME
+            )
         )
 
         val result = aggregator.findSeries(params())

@@ -1,7 +1,7 @@
 package com.chesire.gattai.provider.anilist
 
+import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.search.SearchService
-import com.chesire.gattai.feature.search.Ids
 import com.chesire.gattai.feature.search.SearchModel
 import com.chesire.gattai.feature.search.SearchParams
 import com.chesire.gattai.provider.anilist.dto.AnilistQueryDto
