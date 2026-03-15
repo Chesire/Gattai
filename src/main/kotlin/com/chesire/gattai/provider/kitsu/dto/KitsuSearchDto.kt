@@ -50,7 +50,7 @@ data class KitsuSearchIncludedDto(
 
 data class KitsuSearchIncludedAttributesDto(
     @JsonProperty("externalSite")
-    val externalSite: String, // TODO: Use an enum
+    val externalSite: String,
     @JsonProperty("externalId")
     val externalId: String
 )
