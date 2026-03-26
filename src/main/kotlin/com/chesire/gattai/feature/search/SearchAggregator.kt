@@ -84,7 +84,7 @@ class SearchAggregator(
         return Series(
             kitsuId = mapping.kitsuId,
             malId = mapping.malId,
-            aniListId = mapping.anilistId,
+            anilistId = mapping.anilistId,
             titles = seriesList.map { it.title }.distinct(),
             seriesType = seriesList.first().seriesType,
         )
