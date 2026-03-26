@@ -15,16 +15,11 @@ class AnilistClient {
         .build()
 
     final inline fun <reified T : Any> executeRequest(query: AnilistQueryDto): ResponseEntity<T> {
-        return try {
-            restClient
-                .post()
-                .body(query)
-                .retrieve()
-                .toEntity(object : ParameterizedTypeReference<T>() {})
-        } catch (ex: Exception) {
-            // TODO: Handle ex properly
-            ResponseEntity.internalServerError().build()
-        }
+        return restClient
+            .post()
+            .body(query)
+            .retrieve()
+            .toEntity(object : ParameterizedTypeReference<T>() {})
     }
 
     companion object {

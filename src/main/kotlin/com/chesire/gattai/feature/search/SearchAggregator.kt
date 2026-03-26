@@ -3,8 +3,10 @@ package com.chesire.gattai.feature.search
 import com.chesire.gattai.domain.Series
 import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.search.SearchService
+import com.chesire.gattai.domain.search.SearchServiceResult
 import com.chesire.gattai.provider.mapping.SeriesIdMappingEntry
 import com.chesire.gattai.provider.mapping.SeriesIdMappingProvider
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -13,14 +15,30 @@ class SearchAggregator(
     private val seriesIdMappingProvider: SeriesIdMappingProvider
 ) {
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     @Suppress("CyclomaticComplexMethod")
-    fun findSeries(params: SearchParams): List<Series> {
-        val allResults = services.flatMap { it.search(params) }
+    fun findSeries(params: SearchParams): AggregatedSearchResult {
+        val allResults = services.map { it.search(params) }
+        if (allResults.all { it is SearchServiceResult.Error }) {
+            logger.error("All search services threw an error")
+            return AggregatedSearchResult.Error("All search services failed")
+        } else if (allResults.all { it is SearchServiceResult.NoResults }) {
+            logger.warn("All search services returned no results")
+            return AggregatedSearchResult.NoResults
+        }
+
+        allResults.filterIsInstance<SearchServiceResult.Error>().let {
+            if (it.isNotEmpty()) {
+                logger.info("${it.count()} search service calls have failed, some still succeeded")
+            }
+        }
+        val results = allResults.filterIsInstance<SearchServiceResult.Success>().flatMap { it.searchModels }
 
         val idToIndex = mutableMapOf<String, Int>()
         val accumulated = mutableListOf<Pair<SeriesIdMappingEntry, MutableList<SearchModel>>>()
 
-        for (result in allResults) {
+        for (result in results) {
             val ids = result.ids
             val existingIndex = ids.kitsuId?.let { idToIndex[it] }
                 ?: ids.malId?.let { idToIndex[it] }
@@ -46,7 +64,7 @@ class SearchAggregator(
             }
         }
 
-        return accumulated.map { (entry, models) ->
+        val mappedModels = accumulated.map { (entry, models) ->
             val isAnime = models.first().seriesType == SeriesType.ANIME
             val anyMissing = entry.kitsuId == null || entry.malId == null || entry.anilistId == null
             val resolvedEntry = if (isAnime && anyMissing) {
@@ -56,6 +74,8 @@ class SearchAggregator(
             }
             buildSeries(resolvedEntry, models)
         }
+
+        return AggregatedSearchResult.Success(mappedModels)
     }
 
     private fun buildSeries(mapping: SeriesIdMappingEntry, seriesList: List<SearchModel>): Series {
@@ -67,4 +87,10 @@ class SearchAggregator(
             seriesType = seriesList.first().seriesType,
         )
     }
+}
+
+sealed interface AggregatedSearchResult {
+    data class Success(val series: List<Series>) : AggregatedSearchResult
+    data object NoResults : AggregatedSearchResult
+    data class Error(val message: String) : AggregatedSearchResult
 }

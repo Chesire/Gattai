@@ -5,5 +5,11 @@ import com.chesire.gattai.feature.search.SearchParams
 
 interface SearchService {
 
-    fun search(params: SearchParams): List<SearchModel>
+    fun search(params: SearchParams): SearchServiceResult
+}
+
+sealed interface SearchServiceResult {
+    data class Success(val searchModels: List<SearchModel>) : SearchServiceResult
+    data object NoResults : SearchServiceResult
+    data class Error(val errorMessage: String) : SearchServiceResult
 }

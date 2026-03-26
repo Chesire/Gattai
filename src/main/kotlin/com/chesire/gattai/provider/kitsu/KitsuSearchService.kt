@@ -3,34 +3,40 @@ package com.chesire.gattai.provider.kitsu
 import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.search.SearchService
+import com.chesire.gattai.domain.search.SearchServiceResult
 import com.chesire.gattai.feature.search.SearchModel
 import com.chesire.gattai.feature.search.SearchParams
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDataDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchIncludedDto
+import org.slf4j.LoggerFactory
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class KitsuSearchService(private val client: KitsuClient) : SearchService {
-    override fun search(params: SearchParams): List<SearchModel> {
-        return client.executeGet<KitsuSearchDto>(buildDestination(params))
-            .body
-            ?.let { dto ->
-                val includedMap = dto.included?.associateBy { it.id }.orEmpty()
-                dto.data.map { item ->
-                    val mappings = item.relationships?.mappings?.data
-                        ?.mapNotNull { includedMap[it.id] }
-                        .orEmpty()
 
-                    buildSearchModel(
-                        seriesType = params.seriesType,
-                        data = item,
-                        mappings = mappings
-                    )
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    override fun search(params: SearchParams): SearchServiceResult {
+        return try {
+            val result = client.executeGet<KitsuSearchDto>(buildDestination(params))
+            if (result.statusCode.is2xxSuccessful) {
+                val data = result.toModels(params.seriesType)
+                if (data.isNotEmpty()) {
+                    SearchServiceResult.Success(data)
+                } else {
+                    SearchServiceResult.NoResults
                 }
+            } else {
+                logger.error("Kitsu search failed with status code ${result.statusCode} and body: ${result.body}")
+                SearchServiceResult.Error("Kitsu search failed with status code ${result.statusCode}")
             }
-            .orEmpty() // TODO: Handle better
+        } catch (ex: Exception) {
+            logger.error("Kitsu search failed", ex)
+            SearchServiceResult.Error("Kitsu search failed with exception")
+        }
     }
 
     private fun buildDestination(params: SearchParams): String {
@@ -49,6 +55,24 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
             .queryParam(fieldsKey, fieldsValue)
             .build()
             .toUriString()
+    }
+
+    private fun ResponseEntity<KitsuSearchDto>.toModels(seriesType: SeriesType): List<SearchModel> {
+        return body
+            ?.data
+            ?.map { item ->
+                val includedMap = body?.included?.associateBy { it.id }.orEmpty()
+                val mappings = item.relationships?.mappings?.data
+                    ?.mapNotNull { includedMap[it.id] }
+                    .orEmpty()
+
+                buildSearchModel(
+                    seriesType = seriesType,
+                    data = item,
+                    mappings = mappings
+                )
+            }
+            .orEmpty()
     }
 
     private fun buildSearchModel(

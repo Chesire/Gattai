@@ -18,16 +18,11 @@ class MalClient(@Value($$"${mal.client-id}") private val clientId: String) {
         .build()
 
     final inline fun <reified T : Any> executeGet(destination: String): ResponseEntity<T> {
-        return try {
-            restClient
-                .get()
-                .uri(destination)
-                .retrieve()
-                .toEntity(object : ParameterizedTypeReference<T>() {})
-        } catch (ex: Exception) {
-            // TODO: Handle ex properly
-            ResponseEntity.internalServerError().build()
-        }
+        return restClient
+            .get()
+            .uri(destination)
+            .retrieve()
+            .toEntity(object : ParameterizedTypeReference<T>() {})
     }
 
     companion object {
