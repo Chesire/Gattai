@@ -19,7 +19,7 @@ class SearchAggregator(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Suppress("CyclomaticComplexMethod")
+    @Suppress("CyclomaticComplexMethod", "ReturnCount")
     fun findSeries(query: SearchQuery): AggregatedSearchResult {
         val allResults = services.map { it.search(query) }
         if (allResults.all { it is SearchServiceResult.Error }) {

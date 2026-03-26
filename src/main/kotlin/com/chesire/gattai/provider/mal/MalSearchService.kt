@@ -17,6 +17,7 @@ class MalSearchService(private val client: MalClient) : SearchService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    @Suppress("TooGenericExceptionCaught")
     override fun search(query: SearchQuery): SearchServiceResult {
         return try {
             val result = client.executeGet<MalSearchDto>(buildDestination(query))

@@ -150,8 +150,9 @@ class SearchAggregatorTests {
                 model(kitsuId = "kitsu-1", title = "anime1", type = SeriesType.ANIME)
             )
         )
-        every { seriesIdMappingProvider.findById("kitsu-1", null, null) } returns
-                SeriesIdMappingEntry(kitsuId = "kitsu-1", malId = "mal-1", anilistId = "anilist-1")
+        every {
+            seriesIdMappingProvider.findById("kitsu-1", null, null)
+        } returns SeriesIdMappingEntry(kitsuId = "kitsu-1", malId = "mal-1", anilistId = "anilist-1")
 
         val result = (aggregator.findSeries(params()) as AggregatedSearchResult.Success).series
 
@@ -220,8 +221,9 @@ class SearchAggregatorTests {
                 model(kitsuId = "kitsu-2", malId = "mal-2", title = "anime2", type = SeriesType.ANIME)
             )
         )
-        every { seriesIdMappingProvider.findById("kitsu-2", "mal-2", null) } returns
-                SeriesIdMappingEntry(kitsuId = "kitsu-2", malId = "mal-2", anilistId = "anilist-2")
+        every {
+            seriesIdMappingProvider.findById("kitsu-2", "mal-2", null)
+        } returns SeriesIdMappingEntry(kitsuId = "kitsu-2", malId = "mal-2", anilistId = "anilist-2")
 
         val result = (aggregator.findSeries(params()) as AggregatedSearchResult.Success).series
 

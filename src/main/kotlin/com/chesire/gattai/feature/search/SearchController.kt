@@ -18,9 +18,10 @@ class SearchController(private val aggregator: SearchAggregator) {
         return when (val searchResult = aggregator.findSeries(params.toQuery())) {
             is AggregatedSearchResult.Success -> ResponseEntity.ok(searchResult.series)
             AggregatedSearchResult.NoResults -> ResponseEntity.noContent().build()
-            is AggregatedSearchResult.Error -> ResponseEntity
-                .internalServerError()
-                .body(ErrorResponse(message = "Search failed"))
+            is AggregatedSearchResult.Error ->
+                ResponseEntity
+                    .internalServerError()
+                    .body(ErrorResponse(message = "Search failed"))
         }
     }
 

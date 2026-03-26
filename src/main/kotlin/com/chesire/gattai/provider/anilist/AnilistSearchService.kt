@@ -18,6 +18,7 @@ class AnilistSearchService(private val client: AnilistClient) : SearchService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    @Suppress("TooGenericExceptionCaught")
     override fun search(query: SearchQuery): SearchServiceResult {
         return try {
             val result = client.executeRequest<AnilistSearchDto>(buildQuery(query))

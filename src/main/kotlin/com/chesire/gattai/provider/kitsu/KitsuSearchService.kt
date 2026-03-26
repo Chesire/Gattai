@@ -19,6 +19,7 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    @Suppress("TooGenericExceptionCaught")
     override fun search(query: SearchQuery): SearchServiceResult {
         return try {
             val result = client.executeGet<KitsuSearchDto>(buildDestination(query))
