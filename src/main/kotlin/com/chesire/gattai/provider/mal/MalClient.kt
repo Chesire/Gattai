@@ -7,11 +7,14 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 
 @Component
-class MalClient(@Value($$"${mal.client-id}") private val clientId: String) {
+class MalClient(
+    @Value($$"${mal.base-url}") private val baseUrl: String,
+    @Value($$"${mal.client-id}") private val clientId: String,
+) {
 
     @PublishedApi
     internal val restClient = RestClient.builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(baseUrl)
         .defaultHeaders { headers ->
             headers.add("X-MAL-CLIENT-ID", clientId)
         }
@@ -23,9 +26,5 @@ class MalClient(@Value($$"${mal.client-id}") private val clientId: String) {
             .uri(destination)
             .retrieve()
             .toEntity(object : ParameterizedTypeReference<T>() {})
-    }
-
-    companion object {
-        private const val BASE_URL = "https://api.myanimelist.net/v2/"
     }
 }
