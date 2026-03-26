@@ -25,15 +25,15 @@ class SearchAggregator(
         if (allResults.all { it is SearchServiceResult.Error }) {
             logger.error("All search services threw an error")
             return AggregatedSearchResult.Error("All search services failed")
-        } else if (allResults.all { it is SearchServiceResult.NoResults }) {
+        }
+        if (allResults.all { it is SearchServiceResult.NoResults }) {
             logger.warn("All search services returned no results")
             return AggregatedSearchResult.NoResults
         }
 
-        allResults.filterIsInstance<SearchServiceResult.Error>().let {
-            if (it.isNotEmpty()) {
-                logger.info("${it.count()} search service calls have failed, some still succeeded")
-            }
+        val errors = allResults.filterIsInstance<SearchServiceResult.Error>()
+        if (errors.isNotEmpty()) {
+            logger.info("${errors.size} search service calls have failed, some still succeeded")
         }
         val results = allResults.filterIsInstance<SearchServiceResult.Success>().flatMap { it.searchModels }
 
