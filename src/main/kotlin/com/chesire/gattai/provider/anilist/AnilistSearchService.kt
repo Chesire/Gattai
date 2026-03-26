@@ -2,10 +2,10 @@ package com.chesire.gattai.provider.anilist
 
 import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.SeriesType
+import com.chesire.gattai.domain.search.SearchModel
+import com.chesire.gattai.domain.search.SearchQuery
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.domain.search.SearchServiceResult
-import com.chesire.gattai.feature.search.SearchModel
-import com.chesire.gattai.feature.search.SearchParams
 import com.chesire.gattai.provider.anilist.dto.AnilistQueryDto
 import com.chesire.gattai.provider.anilist.dto.AnilistQueryVariablesDto
 import com.chesire.gattai.provider.anilist.dto.AnilistSearchDto
@@ -18,11 +18,11 @@ class AnilistSearchService(private val client: AnilistClient) : SearchService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override fun search(params: SearchParams): SearchServiceResult {
+    override fun search(query: SearchQuery): SearchServiceResult {
         return try {
-            val result = client.executeRequest<AnilistSearchDto>(buildQuery(params))
+            val result = client.executeRequest<AnilistSearchDto>(buildQuery(query))
             if (result.statusCode.is2xxSuccessful) {
-                val data = result.toModels(params.seriesType)
+                val data = result.toModels(query.seriesType)
                 if (data.isNotEmpty()) {
                     SearchServiceResult.Success(data)
                 } else {
@@ -38,11 +38,11 @@ class AnilistSearchService(private val client: AnilistClient) : SearchService {
         }
     }
 
-    private fun buildQuery(params: SearchParams) = AnilistQueryDto(
+    private fun buildQuery(query: SearchQuery) = AnilistQueryDto(
         query = SEARCH_QUERY,
         variables = AnilistQueryVariablesDto(
-            search = params.title,
-            type = params.seriesType.toString()
+            search = query.title,
+            type = query.seriesType.toString()
         )
     )
 

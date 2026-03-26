@@ -2,6 +2,7 @@ package com.chesire.gattai.feature.search
 
 import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.SeriesType
+import com.chesire.gattai.domain.search.SearchModel
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.provider.mapping.SeriesIdMappingEntry
 import com.chesire.gattai.provider.mapping.SeriesIdMappingProvider

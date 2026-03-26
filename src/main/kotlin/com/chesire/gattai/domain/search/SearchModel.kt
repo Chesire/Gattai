@@ -1,4 +1,4 @@
-package com.chesire.gattai.feature.search
+package com.chesire.gattai.domain.search
 
 import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.SeriesType

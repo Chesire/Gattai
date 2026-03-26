@@ -2,10 +2,10 @@ package com.chesire.gattai.provider.mal
 
 import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.SeriesType
+import com.chesire.gattai.domain.search.SearchModel
+import com.chesire.gattai.domain.search.SearchQuery
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.domain.search.SearchServiceResult
-import com.chesire.gattai.feature.search.SearchModel
-import com.chesire.gattai.feature.search.SearchParams
 import com.chesire.gattai.provider.mal.dto.MalSearchDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -17,11 +17,11 @@ class MalSearchService(private val client: MalClient) : SearchService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override fun search(params: SearchParams): SearchServiceResult {
+    override fun search(query: SearchQuery): SearchServiceResult {
         return try {
-            val result = client.executeGet<MalSearchDto>(buildDestination(params))
+            val result = client.executeGet<MalSearchDto>(buildDestination(query))
             if (result.statusCode.is2xxSuccessful) {
-                val data = result.toModels(params.seriesType)
+                val data = result.toModels(query.seriesType)
                 if (data.isNotEmpty()) {
                     SearchServiceResult.Success(data)
                 } else {
@@ -37,13 +37,13 @@ class MalSearchService(private val client: MalClient) : SearchService {
         }
     }
 
-    private fun buildDestination(params: SearchParams): String {
-        val basePath = when (params.seriesType) {
+    private fun buildDestination(query: SearchQuery): String {
+        val basePath = when (query.seriesType) {
             SeriesType.ANIME -> ANIME_DESTINATION
             SeriesType.MANGA -> MANGA_DESTINATION
         }
         return UriComponentsBuilder.fromPath(basePath)
-            .queryParam(QUERY_KEY, params.title)
+            .queryParam(QUERY_KEY, query.title)
             .queryParam(LIMIT_KEY, LIMIT_VALUE)
             .queryParam(FIELDS_KEY, FIELDS_VALUE)
             .build()

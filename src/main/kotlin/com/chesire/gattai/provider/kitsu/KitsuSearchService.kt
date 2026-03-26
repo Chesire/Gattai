@@ -2,10 +2,10 @@ package com.chesire.gattai.provider.kitsu
 
 import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.SeriesType
+import com.chesire.gattai.domain.search.SearchModel
+import com.chesire.gattai.domain.search.SearchQuery
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.domain.search.SearchServiceResult
-import com.chesire.gattai.feature.search.SearchModel
-import com.chesire.gattai.feature.search.SearchParams
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDataDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchIncludedDto
@@ -19,11 +19,11 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override fun search(params: SearchParams): SearchServiceResult {
+    override fun search(query: SearchQuery): SearchServiceResult {
         return try {
-            val result = client.executeGet<KitsuSearchDto>(buildDestination(params))
+            val result = client.executeGet<KitsuSearchDto>(buildDestination(query))
             if (result.statusCode.is2xxSuccessful) {
-                val data = result.toModels(params.seriesType)
+                val data = result.toModels(query.seriesType)
                 if (data.isNotEmpty()) {
                     SearchServiceResult.Success(data)
                 } else {
@@ -39,17 +39,17 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
         }
     }
 
-    private fun buildDestination(params: SearchParams): String {
-        val basePath = when (params.seriesType) {
+    private fun buildDestination(query: SearchQuery): String {
+        val basePath = when (query.seriesType) {
             SeriesType.ANIME -> ANIME_DESTINATION
             SeriesType.MANGA -> MANGA_DESTINATION
         }
-        val (fieldsKey, fieldsValue) = when (params.seriesType) {
+        val (fieldsKey, fieldsValue) = when (query.seriesType) {
             SeriesType.ANIME -> ANIME_FIELDS_KEY to ANIME_FIELDS_VALUE
             SeriesType.MANGA -> MANGA_FIELDS_KEY to MANGA_FIELDS_VALUE
         }
         return UriComponentsBuilder.fromPath(basePath)
-            .queryParam(QUERY_KEY, params.title)
+            .queryParam(QUERY_KEY, query.title)
             .queryParam(INCLUDE_KEY, INCLUDE_VALUE)
             .queryParam(LIMIT_KEY, LIMIT_VALUE)
             .queryParam(fieldsKey, fieldsValue)

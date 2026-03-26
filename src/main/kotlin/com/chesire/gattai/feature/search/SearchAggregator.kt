@@ -2,6 +2,8 @@ package com.chesire.gattai.feature.search
 
 import com.chesire.gattai.domain.Series
 import com.chesire.gattai.domain.SeriesType
+import com.chesire.gattai.domain.search.SearchModel
+import com.chesire.gattai.domain.search.SearchQuery
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.domain.search.SearchServiceResult
 import com.chesire.gattai.provider.mapping.SeriesIdMappingEntry
@@ -18,8 +20,8 @@ class SearchAggregator(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Suppress("CyclomaticComplexMethod")
-    fun findSeries(params: SearchParams): AggregatedSearchResult {
-        val allResults = services.map { it.search(params) }
+    fun findSeries(query: SearchQuery): AggregatedSearchResult {
+        val allResults = services.map { it.search(query) }
         if (allResults.all { it is SearchServiceResult.Error }) {
             logger.error("All search services threw an error")
             return AggregatedSearchResult.Error("All search services failed")
