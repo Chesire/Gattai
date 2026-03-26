@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size
 
 data class SearchParams(
     @NotBlank
-    @field:Size(max = 255)
-    val title: String,
+    @Size(max = 255)
+    val title: String = "",
     val seriesType: SeriesType = SeriesType.ANIME
 )
