@@ -14,11 +14,6 @@ import org.springframework.web.util.UriComponentsBuilder
 @Component
 class KitsuSearchService(private val client: KitsuClient) : SearchService {
     override fun search(params: SearchParams): List<SearchModel> {
-        if (params.isEmpty) {
-            // TODO: Throw exception and handle as error?
-            return emptyList()
-        }
-
         return client.executeGet<KitsuSearchDto>(buildDestination(params))
             .body
             ?.let { dto ->

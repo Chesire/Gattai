@@ -12,11 +12,6 @@ import org.springframework.stereotype.Component
 @Component
 class AnilistSearchService(private val client: AnilistClient) : SearchService {
     override fun search(params: SearchParams): List<SearchModel> {
-        if (params.isEmpty) {
-            // TODO: Throw exception and handle as error?
-            return emptyList()
-        }
-
         return client.executeRequest<AnilistSearchDto>(buildQuery(params))
             .body
             ?.let { dto ->

@@ -12,11 +12,6 @@ import org.springframework.web.util.UriComponentsBuilder
 @Component
 class MalSearchService(private val client: MalClient) : SearchService {
     override fun search(params: SearchParams): List<SearchModel> {
-        if (params.isEmpty) {
-            // TODO: Throw exception and handle as error?
-            return emptyList()
-        }
-
         return client.executeGet<MalSearchDto>(buildDestination(params))
             .body
             ?.let { dto ->
