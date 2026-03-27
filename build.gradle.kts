@@ -25,9 +25,11 @@ repositories {
 dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("io.mockk:mockk:1.14.9")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
 }
