@@ -1,6 +1,6 @@
 package com.chesire.gattai.feature.retrievelibrary
 
-import com.chesire.gattai.domain.SeriesEntry
+import com.chesire.gattai.domain.Tokens
 import com.chesire.gattai.error.ErrorResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/retrieve-library")
-class RetrieveLibraryController {
+class RetrieveLibraryController(private val aggregator: RetrieveLibraryAggregator) {
 
     @GetMapping
     fun retrieveLibrary(
@@ -21,21 +21,24 @@ class RetrieveLibraryController {
         @RequestHeader(value = "mal-token", required = false) malToken: String?,
         @Valid @ModelAttribute params: RetrieveLibraryParams
     ): ResponseEntity<Any> {
-        if (!hasValidToken(kitsuToken = kitsuToken, anilistToken = anilistToken, malToken = malToken)) {
+        val tokens = Tokens(
+            kitsuToken = kitsuToken,
+            anilistToken = anilistToken,
+            malToken = malToken
+        )
+        if (!tokens.hasValidToken) {
             return ResponseEntity
                 .badRequest()
-                .body(
-                    ErrorResponse("No tokens provided")
-                )
+                .body(ErrorResponse("No tokens provided"))
         }
 
-        // TODO: Send off to a service
-        return ResponseEntity
-            .ok()
-            .body(listOf<SeriesEntry>())
-    }
-
-    private fun hasValidToken(kitsuToken: String?, anilistToken: String?, malToken: String?): Boolean {
-        return kitsuToken != null || anilistToken != null || malToken != null
+        return when (val retrieveResult = aggregator.retrieveLibraries(tokens, params.seriesType)) {
+            is AggregatedRetrieveResult.Success -> ResponseEntity.ok(retrieveResult.series)
+            AggregatedRetrieveResult.NoResults -> ResponseEntity.noContent().build()
+            is AggregatedRetrieveResult.Error ->
+                ResponseEntity
+                    .internalServerError()
+                    .body(ErrorResponse(message = "Retrieve library failed"))
+        }
     }
 }
