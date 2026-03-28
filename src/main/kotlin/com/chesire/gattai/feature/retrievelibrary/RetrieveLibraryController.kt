@@ -13,9 +13,9 @@ class RetrieveLibraryController {
 
     @GetMapping
     fun retrieveLibrary(
-        @RequestHeader("kitsu-token") kitsuToken: String,
-        @RequestHeader("anilist-token") anilistToken: String,
-        @RequestHeader("mal-token") malToken: String,
+        @RequestHeader(value = "kitsu-token", required = false) kitsuToken: String?,
+        @RequestHeader(value = "anilist-token", required = false) anilistToken: String?,
+        @RequestHeader(value = "mal-token", required = false) malToken: String?
     ): ResponseEntity<Any> {
         // Send off to a service
         return ResponseEntity
