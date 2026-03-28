@@ -17,7 +17,18 @@ class RetrieveLibraryAggregator(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun retrieveLibraries(tokens: Tokens, seriesType: SeriesType): AggregatedRetrieveResult {
-        // Do calls to services and mapping etc
+        val allResults = services.mapNotNull { service ->
+            val token = service.extractToken(tokens)
+            if (token != null) {
+                service.retrieveLibrary(token, seriesType)
+            } else {
+                null
+            }
+        }
+
+        // NEXT STEPS:
+        // Implement the services
+        // Implement the mapping in here
         return AggregatedRetrieveResult.NoResults
     }
 }
