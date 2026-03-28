@@ -23,7 +23,7 @@ class RetrieveLibraryAggregator(
 }
 
 sealed interface AggregatedRetrieveResult {
-    data class Success(val series: List<SeriesEntry>) : AggregatedRetrieveResult
+    data class Success(val series: List<SeriesEntry>, val warnings: List<String>) : AggregatedRetrieveResult
     data object NoResults : AggregatedRetrieveResult
     data class Error(val message: String) : AggregatedRetrieveResult
 }
