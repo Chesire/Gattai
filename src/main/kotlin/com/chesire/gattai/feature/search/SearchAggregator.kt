@@ -1,5 +1,6 @@
 package com.chesire.gattai.feature.search
 
+import com.chesire.gattai.domain.Ids
 import com.chesire.gattai.domain.Series
 import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.search.SearchModel
@@ -82,9 +83,11 @@ class SearchAggregator(
 
     private fun buildSeries(mapping: SeriesIdMappingEntry, seriesList: List<SearchModel>): Series {
         return Series(
-            kitsuId = mapping.kitsuId,
-            malId = mapping.malId,
-            anilistId = mapping.anilistId,
+            ids = Ids(
+                kitsuId = mapping.kitsuId,
+                malId = mapping.malId,
+                anilistId = mapping.anilistId,
+            ),
             titles = seriesList.map { it.title }.distinct(),
             seriesType = seriesList.first().seriesType,
         )
