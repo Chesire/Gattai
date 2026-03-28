@@ -42,5 +42,5 @@ out/
 ### CLAUDE ###
 CLAUDE.local.md
 
-### Code Review ###
-code-review.md
+### Dev notes ###
+do-not-commit.md
