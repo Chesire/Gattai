@@ -2,8 +2,10 @@ package com.chesire.gattai.feature.retrievelibrary
 
 import com.chesire.gattai.domain.SeriesEntry
 import com.chesire.gattai.error.ErrorResponse
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -16,7 +18,8 @@ class RetrieveLibraryController {
     fun retrieveLibrary(
         @RequestHeader(value = "kitsu-token", required = false) kitsuToken: String?,
         @RequestHeader(value = "anilist-token", required = false) anilistToken: String?,
-        @RequestHeader(value = "mal-token", required = false) malToken: String?
+        @RequestHeader(value = "mal-token", required = false) malToken: String?,
+        @Valid @ModelAttribute params: RetrieveLibraryParams
     ): ResponseEntity<Any> {
         if (!hasValidToken(kitsuToken = kitsuToken, anilistToken = anilistToken, malToken = malToken)) {
             return ResponseEntity
@@ -26,7 +29,7 @@ class RetrieveLibraryController {
                 )
         }
 
-        // Send off to a service
+        // TODO: Send off to a service
         return ResponseEntity
             .ok()
             .body(listOf<SeriesEntry>())
