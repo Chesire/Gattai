@@ -6,7 +6,7 @@ import com.chesire.gattai.domain.retrievelibrary.LibraryModel
 import com.chesire.gattai.domain.retrievelibrary.RetrieveLibraryQuery
 import com.chesire.gattai.domain.retrievelibrary.RetrieveLibraryService
 import com.chesire.gattai.domain.retrievelibrary.RetrieveServiceResult
-import com.chesire.gattai.provider.kitsu.dto.KitsuLibraryDto
+import com.chesire.gattai.provider.kitsu.dto.KitsuLibraryResponseDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -29,7 +29,7 @@ class KitsuLibraryService(
         }
 
         return try {
-            val result = client.executeGet<KitsuLibraryDto>(buildDestination(query, userId))
+            val result = client.executeGet<KitsuLibraryResponseDto>(buildDestination(query, userId))
             if (result.statusCode.is2xxSuccessful) {
                 val data = result.toModels(query.seriesType)
                 if (data.isNotEmpty()) {
@@ -63,8 +63,9 @@ class KitsuLibraryService(
             .toUriString()
     }
 
-    private fun ResponseEntity<KitsuLibraryDto>.toModels(seriesType: SeriesType): List<LibraryModel> {
+    private fun ResponseEntity<KitsuLibraryResponseDto>.toModels(seriesType: SeriesType): List<LibraryModel> {
         // TODO: Populate
+        logger.info("Found ${}")
         return emptyList()
     }
 

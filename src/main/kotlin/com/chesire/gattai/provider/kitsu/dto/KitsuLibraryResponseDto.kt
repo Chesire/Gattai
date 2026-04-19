@@ -1,5 +1,5 @@
 package com.chesire.gattai.provider.kitsu.dto
 
-internal data class KitsuLibraryDto(
+internal data class KitsuLibraryResponseDto(
     val id: Int
 )
