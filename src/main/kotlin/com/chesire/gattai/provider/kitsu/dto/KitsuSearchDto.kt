@@ -6,7 +6,7 @@ internal data class KitsuSearchDto(
     @JsonProperty("data")
     val data: List<KitsuSearchDataDto>,
     @JsonProperty("included")
-    val included: List<KitsuSearchIncludedDto>?
+    val included: List<KitsuIncludedDto>?
 )
 
 data class KitsuSearchDataDto(
@@ -38,19 +38,4 @@ data class KitsuSearchRelationshipsMappingsDto(
 data class KitsuSearchRelationshipsMappingDto(
     @JsonProperty("id")
     val id: String
-)
-
-/* Included */
-data class KitsuSearchIncludedDto(
-    @JsonProperty("id")
-    val id: String,
-    @JsonProperty("attributes")
-    val attributes: KitsuSearchIncludedAttributesDto
-)
-
-data class KitsuSearchIncludedAttributesDto(
-    @JsonProperty("externalSite")
-    val externalSite: String,
-    @JsonProperty("externalId")
-    val externalId: String
 )
