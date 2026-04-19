@@ -31,6 +31,7 @@ class KitsuLibraryService(
         return try {
             val result = client.executeGet<KitsuLibraryResponseDto>(buildDestination(query, userId))
             if (result.statusCode.is2xxSuccessful) {
+                logger.error("Kitsu retrieve library successful, now parsing into models")
                 val data = result.toModels(query.seriesType)
                 if (data.isNotEmpty()) {
                     RetrieveServiceResult.Success(data)
@@ -65,7 +66,7 @@ class KitsuLibraryService(
 
     private fun ResponseEntity<KitsuLibraryResponseDto>.toModels(seriesType: SeriesType): List<LibraryModel> {
         // TODO: Populate
-        logger.info("Found ${}")
+        logger.info("Found ${this.body?.data?.size ?: 0} items")
         return emptyList()
     }
 

@@ -6,9 +6,9 @@ import com.chesire.gattai.domain.search.SearchModel
 import com.chesire.gattai.domain.search.SearchQuery
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.domain.search.SearchServiceResult
-import com.chesire.gattai.provider.kitsu.dto.KitsuIncludedDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDataDto
-import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDto
+import com.chesire.gattai.provider.kitsu.dto.KitsuSearchIncludedDto
+import com.chesire.gattai.provider.kitsu.dto.KitsuSearchResponseDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -22,7 +22,7 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
     @Suppress("TooGenericExceptionCaught")
     override fun search(query: SearchQuery): SearchServiceResult {
         return try {
-            val result = client.executeGet<KitsuSearchDto>(buildDestination(query))
+            val result = client.executeGet<KitsuSearchResponseDto>(buildDestination(query))
             if (result.statusCode.is2xxSuccessful) {
                 val data = result.toModels(query.seriesType)
                 if (data.isNotEmpty()) {
@@ -58,7 +58,7 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
             .toUriString()
     }
 
-    private fun ResponseEntity<KitsuSearchDto>.toModels(seriesType: SeriesType): List<SearchModel> {
+    private fun ResponseEntity<KitsuSearchResponseDto>.toModels(seriesType: SeriesType): List<SearchModel> {
         return body
             ?.data
             ?.map { item ->
@@ -79,7 +79,7 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
     private fun buildSearchModel(
         seriesType: SeriesType,
         data: KitsuSearchDataDto,
-        mappings: List<KitsuIncludedDto>
+        mappings: List<KitsuSearchIncludedDto>
     ): SearchModel {
         return SearchModel(
             ids = Ids(

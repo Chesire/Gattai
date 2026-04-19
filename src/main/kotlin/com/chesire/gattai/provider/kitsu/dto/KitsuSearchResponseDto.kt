@@ -2,11 +2,11 @@ package com.chesire.gattai.provider.kitsu.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-internal data class KitsuSearchDto(
+internal data class KitsuSearchResponseDto(
     @JsonProperty("data")
     val data: List<KitsuSearchDataDto>,
     @JsonProperty("included")
-    val included: List<KitsuIncludedDto>?
+    val included: List<KitsuSearchIncludedDto>?
 )
 
 data class KitsuSearchDataDto(
@@ -38,4 +38,12 @@ data class KitsuSearchRelationshipsMappingsDto(
 data class KitsuSearchRelationshipsMappingDto(
     @JsonProperty("id")
     val id: String
+)
+
+/* Included */
+data class KitsuSearchIncludedDto(
+    @JsonProperty("id")
+    val id: String,
+    @JsonProperty("attributes")
+    val attributes: KitsuIncludedAttributesDto
 )
