@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 internal data class KitsuLibraryResponseDto(
     @JsonProperty("data")
-    val data: List<KitsuSearchDataDto>,
+    val data: List<KitsuLibraryDataDto>,
     @JsonProperty("included")
     val included: List<KitsuIncludedDto>?
 )
