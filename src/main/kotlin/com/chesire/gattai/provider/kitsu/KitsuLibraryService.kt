@@ -17,6 +17,7 @@ class KitsuLibraryService(
     private val client: KitsuClient,
     private val userService: KitsuUserService
 ) : RetrieveLibraryService {
+
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override fun extractToken(tokens: Tokens): String? = tokens.kitsuToken

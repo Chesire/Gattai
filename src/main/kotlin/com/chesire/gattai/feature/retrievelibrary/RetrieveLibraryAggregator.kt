@@ -3,6 +3,7 @@ package com.chesire.gattai.feature.retrievelibrary
 import com.chesire.gattai.domain.SeriesEntry
 import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.Tokens
+import com.chesire.gattai.domain.retrievelibrary.RetrieveLibraryQuery
 import com.chesire.gattai.domain.retrievelibrary.RetrieveLibraryService
 import com.chesire.gattai.provider.mapping.SeriesIdMappingProvider
 import org.slf4j.LoggerFactory
@@ -20,7 +21,7 @@ class RetrieveLibraryAggregator(
         val allResults = services.mapNotNull { service ->
             val token = service.extractToken(tokens)
             if (token != null) {
-                service.retrieveLibrary(token, seriesType)
+                service.retrieveLibrary(RetrieveLibraryQuery(token, seriesType))
             } else {
                 null
             }
