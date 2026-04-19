@@ -19,10 +19,15 @@ class KitsuClient(@Value($$"${kitsu.base-url}") private val baseUrl: String) {
         }
         .build()
 
-    final inline fun <reified T : Any> executeGet(destination: String): ResponseEntity<T> {
+    final inline fun <reified T : Any> executeGet(destination: String, accessToken: String? = null): ResponseEntity<T> {
         return restClient
             .get()
             .uri(destination)
+            .headers { headers ->
+                accessToken?.let { token ->
+                    headers.setBearerAuth(token)
+                }
+            }
             .retrieve()
             .toEntity(object : ParameterizedTypeReference<T>() {})
     }
