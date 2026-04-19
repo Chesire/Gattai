@@ -11,7 +11,7 @@ class KitsuUserService(private val client: KitsuClient) {
 
     fun retrieveUserId(token: String): String? {
         return try {
-            val result = client.executeGet<KitsuUserResponseDto>(USER_ENDPOINT, token)
+            val result = client.executeGet<KitsuUserResponseDto>(DESTINATION, token)
             if (result.statusCode.is2xxSuccessful) {
                 val body = result.body?.data?.firstOrNull()
                 if (body == null) {
@@ -34,10 +34,10 @@ class KitsuUserService(private val client: KitsuClient) {
     }
 
     companion object {
-        private const val SELF_KEY = "filter[self]"
-        private val USER_ENDPOINT = UriComponentsBuilder.fromPath("/users")
+        private val DESTINATION = UriComponentsBuilder.fromPath("/users")
             .queryParam(SELF_KEY, true)
             .build()
             .toUriString()
+        private const val SELF_KEY = "filter[self]"
     }
 }
