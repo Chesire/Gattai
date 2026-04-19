@@ -6,9 +6,9 @@ import com.chesire.gattai.domain.search.SearchModel
 import com.chesire.gattai.domain.search.SearchQuery
 import com.chesire.gattai.domain.search.SearchService
 import com.chesire.gattai.domain.search.SearchServiceResult
+import com.chesire.gattai.provider.kitsu.dto.KitsuIncludedDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDataDto
 import com.chesire.gattai.provider.kitsu.dto.KitsuSearchDto
-import com.chesire.gattai.provider.kitsu.dto.KitsuSearchIncludedDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -79,7 +79,7 @@ class KitsuSearchService(private val client: KitsuClient) : SearchService {
     private fun buildSearchModel(
         seriesType: SeriesType,
         data: KitsuSearchDataDto,
-        mappings: List<KitsuSearchIncludedDto>
+        mappings: List<KitsuIncludedDto>
     ): SearchModel {
         return SearchModel(
             ids = Ids(
