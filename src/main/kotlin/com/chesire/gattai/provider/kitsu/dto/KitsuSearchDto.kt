@@ -2,7 +2,7 @@ package com.chesire.gattai.provider.kitsu.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class KitsuSearchDto(
+internal data class KitsuSearchDto(
     @JsonProperty("data")
     val data: List<KitsuSearchDataDto>,
     @JsonProperty("included")
