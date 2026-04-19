@@ -1,11 +1,10 @@
 package com.chesire.gattai.domain.retrievelibrary
 
-import com.chesire.gattai.domain.SeriesType
 import com.chesire.gattai.domain.Tokens
 
 interface RetrieveLibraryService {
     fun extractToken(tokens: Tokens): String?
-    fun retrieveLibrary(token: String, seriesType: SeriesType): RetrieveServiceResult
+    fun retrieveLibrary(query: RetrieveLibraryQuery): RetrieveServiceResult
 }
 
 sealed interface RetrieveServiceResult {
