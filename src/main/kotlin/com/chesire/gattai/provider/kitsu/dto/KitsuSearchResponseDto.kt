@@ -45,5 +45,12 @@ data class KitsuSearchIncludedDto(
     @JsonProperty("id")
     val id: String,
     @JsonProperty("attributes")
-    val attributes: KitsuIncludedAttributesDto
+    val attributes: KitsuSearchIncludedAttributesDto
+)
+
+data class KitsuSearchIncludedAttributesDto(
+    @JsonProperty("externalSite")
+    val externalSite: String,
+    @JsonProperty("externalId")
+    val externalId: String
 )
